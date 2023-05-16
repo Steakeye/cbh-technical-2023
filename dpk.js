@@ -27,7 +27,7 @@ function sanitizeKeyIfTooLong(currentKey) {
 }
 
 exports.deterministicPartitionKey = (event) => {
-  // If we have no data to work with, return a default value
+  // If we have no data to work with, return early with a default value
   if (!event) {
     return TRIVIAL_PARTITION_KEY;
   }
