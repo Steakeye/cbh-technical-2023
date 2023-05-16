@@ -16,3 +16,12 @@ Based on the information given, break this ticket down into 2-5 individual ticke
 You will be graded on the level of detail in each ticket, the clarity of the execution plan within and between tickets, and the intelligibility of your language. You don't need to be a native English speaker, but please proof-read your work.
 
 ## Your Breakdown Here
+
+Sub-tasks:
+Create FacilitiesAgents table
+- This will allow Facilities to enter details relating to their business concerns against an Agent, mapping the FacilitiesAgent entry to the Agents table primary key (uuid).
+  Add `addAgentToFacility` endpoint
+- This function will allow a Facility user to add an Agent to their list of agents, specific to their Facility
+  Extend Shifts table to include 'FacilitiesAgentID'
+- Every work shift created will now include both the internal AgentID and the ID relating to the Agent specific to the Facility which the Shift relates to.
+- update call to `addShift` to include FacilitiesAgentID
