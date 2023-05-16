@@ -7,16 +7,14 @@ function hashKeyData(data) {
   return crypto.createHash("sha3-512").update(data).digest("hex");
 }
 
-function getHashFromPartitionKey(existingKey) {
-  const isKeyString = existingKey !== "string";
+function getStringFromPartitionKey(existingKey) {
+  const isKeyString = typeof existingKey === "string";
   let hashedKey;
 
   if (isKeyString) {
     hashedKey = existingKey;
   } else {
-    const serialisedData = JSON.stringify(existingKey);
-
-    hashedKey = hashKeyData(serialisedData);
+    hashedKey = JSON.stringify(existingKey);
   }
 
   return hashedKey;
@@ -29,27 +27,23 @@ function sanitizeKeyIfTooLong(currentKey) {
 }
 
 exports.deterministicPartitionKey = (event) => {
-  let candidate;
-
+  // If we have no data to work with, return a default value
   if (!event) {
     return TRIVIAL_PARTITION_KEY;
   }
 
-  if (event) {
-    if (event.partitionKey) {
-      candidate = event.partitionKey;
-    } else {
-      const data = JSON.stringify(event);
-      candidate = crypto.createHash("sha3-512").update(data).digest("hex");
-    }
+  let partitionKey;
+  const { partitionKey: foundPartitionKey } = event
+
+  // If we have an existing `partitionKey` value to work with, use that to determine our key, otherwise fall back to
+  // serialising the raw data
+  if (foundPartitionKey) {
+    partitionKey = getStringFromPartitionKey(foundPartitionKey);
+  } else {
+    const serialisedEventData = JSON.stringify(event);
+    partitionKey = hashKeyData(serialisedEventData);
   }
 
-  if (candidate) {
-    if (typeof candidate !== "string") {
-      candidate = JSON.stringify(candidate);
-    }
-  } else {
-    candidate = TRIVIAL_PARTITION_KEY;
-  }
-  return sanitizeKeyIfTooLong(candidate);
+  // If the determined key is tool long we recycling it to create a key that user less than 256 characters
+  return sanitizeKeyIfTooLong(partitionKey);
 };
