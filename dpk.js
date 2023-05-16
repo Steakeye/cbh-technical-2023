@@ -44,6 +44,6 @@ exports.deterministicPartitionKey = (event) => {
     partitionKey = hashKeyData(serialisedEventData);
   }
 
-  // If the determined key is tool long we recycling it to create a key that user less than 256 characters
+  // If the determined key is too long we recycling it to create a key that user less than 256 characters
   return sanitizeKeyIfTooLong(partitionKey);
 };
