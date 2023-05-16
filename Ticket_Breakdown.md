@@ -25,3 +25,13 @@ Create FacilitiesAgents table
   Extend Shifts table to include 'FacilitiesAgentID'
 - Every work shift created will now include both the internal AgentID and the ID relating to the Agent specific to the Facility which the Shift relates to.
 - update call to `addShift` to include FacilitiesAgentID
+
+### Task Details
+
+#### Create FacilitiesAgents table
+
+Requirements: Create a new table that can be used to map Facilities with Agents, allow the facility to enter extra metadata relating to this agent and their requirements.
+
+AC: Make sure that no duplicate entries can be created based on the internal AgentID key.
+
+Estimate: DB/Backend effort, 1-2 days; UI effort, assuming a new view, 2-3 days.
