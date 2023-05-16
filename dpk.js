@@ -1,9 +1,39 @@
 const crypto = require("crypto");
 
+const TRIVIAL_PARTITION_KEY = "0";
+const MAX_PARTITION_KEY_LENGTH = 256;
+
+function hashKeyData(data) {
+  return crypto.createHash("sha3-512").update(data).digest("hex");
+}
+
+function getHashFromPartitionKey(existingKey) {
+  const isKeyString = existingKey !== "string";
+  let hashedKey;
+
+  if (isKeyString) {
+    hashedKey = existingKey;
+  } else {
+    const serialisedData = JSON.stringify(existingKey);
+
+    hashedKey = hashKeyData(serialisedData);
+  }
+
+  return hashedKey;
+}
+
+function sanitizeKeyIfTooLong(currentKey) {
+  return currentKey.length > MAX_PARTITION_KEY_LENGTH ?
+      crypto.createHash("sha3-512").update(currentKey).digest("hex"):
+      currentKey;
+}
+
 exports.deterministicPartitionKey = (event) => {
-  const TRIVIAL_PARTITION_KEY = "0";
-  const MAX_PARTITION_KEY_LENGTH = 256;
   let candidate;
+
+  if (!event) {
+    return TRIVIAL_PARTITION_KEY;
+  }
 
   if (event) {
     if (event.partitionKey) {
@@ -21,8 +51,5 @@ exports.deterministicPartitionKey = (event) => {
   } else {
     candidate = TRIVIAL_PARTITION_KEY;
   }
-  if (candidate.length > MAX_PARTITION_KEY_LENGTH) {
-    candidate = crypto.createHash("sha3-512").update(candidate).digest("hex");
-  }
-  return candidate;
+  return sanitizeKeyIfTooLong(candidate);
 };
